@@ -1,0 +1,73 @@
+.App {
+    text-align: center;
+    height: 100%;
+}
+#control-bar-container{
+    height: 10%;
+}
+#view-container{
+    height:80%;
+}
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.col2{
+    float: left;
+    width: 50%;
+}
+
+/* Container to add spacing between dropdowns */
+.dropdown-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 300px;
+  }
+  
+  /* Style for labels */
+  .dropdown-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  /* Style for the select dropdowns */
+  .dropdown-select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #333;
+    appearance: none; /* Removes default arrow styling */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Custom arrow icon for dropdown */
+  .dropdown-select::after {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    color: #888;
+  }
+  
+  /* Hover effect */
+  .dropdown-select:hover {
+    border-color: #aaa;
+    background-color: #f3f3f3;
+  }
+  
+  /* Focus effect */
+  .dropdown-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+  }
+  
