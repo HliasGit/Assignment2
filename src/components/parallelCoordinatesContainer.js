@@ -1,14 +1,20 @@
 import React, { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import ParallelCoordinatesD3 from './parallelCoordinate-D3';
+import { setSelectedItems } from '../redux/SelectedItemSlice';
+
 
 function ParallelCoordinatesContainer() {
     const divContainerRef = useRef(null);
     const parallelCoordsD3Ref = useRef(null);
 
+    // Dispatch
+    const dispatch = useDispatch(); // Hook to dispatch actions
+
     // Sample data and attributes
     const csvData = useSelector(state => state.dataSet);
     const zAttribute = useSelector(state => state.selection.dropdown3);
+    const wAttribute = useSelector(state => state.selection.dropdown4);
     const selectedData = useSelector(state => state.selectedItems)
 
     const getContainerSize = () => {
@@ -22,20 +28,25 @@ function ParallelCoordinatesContainer() {
         const size = getContainerSize();
         parallelCoordsD3Ref.current = new ParallelCoordinatesD3(divContainerRef.current);
         parallelCoordsD3Ref.current.create({ size });
-        parallelCoordsD3Ref.current.renderParallel(csvData, "Rainfall", "Date", selectedData);
+        //parallelCoordsD3Ref.current.renderParallel(csvData, "Rainfall", "Date", selectedData);
 
     }, []);
 
     useEffect(() => {
-        // Create the ParallelCoordinatesD3 instance and render axes
 
-        console.log("ISEBILB")
-        console.log(selectedData)
+        const handleBrushIntersection = (selectedData) => {
+            dispatch(setSelectedItems(selectedData)); // Dispatch selected items to Redux
+        };
+
+        const controllerMethods={
+            handleBrushIntersection
+        }
 
         if (divContainerRef.current) {
-            parallelCoordsD3Ref.current.renderParallel(csvData, zAttribute,"Date", selectedData);
+            parallelCoordsD3Ref.current.renderParallel(csvData, zAttribute, wAttribute, selectedData, controllerMethods);
         }
-    }, [csvData, zAttribute, selectedData]);
+
+    }, [csvData, zAttribute, wAttribute, selectedData, dispatch]);
 
     return (
         <div ref={divContainerRef} style={{ width: "100%", height: "400px" }}>

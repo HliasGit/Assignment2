@@ -7,10 +7,17 @@ export const getSeoulBikeData = createAsyncThunk('seoulBikeData/fetchData', asyn
     const responseText = await response.text();
     console.log("loaded file length:" + responseText.length);
     const responseJson = Papa.parse(responseText,{header:true, dynamicTyping:true});
-    return responseJson.data.map((item,i)=>{let cacca = item.Date.split("/")
-                                            let data = new Date(cacca[2], cacca[1]-1, cacca[0])
-                                            return {...item,index:i,Date:data}});
-    // when a result is returned, extraReducer below is triggered with the case setSeoulBikeData.fulfilled
+    
+    const string_to_iso = (date_str) => {
+      const [day, month, year] = date_str.split('/').map(Number);
+      return new Date(year, month - 1, day).getTime();
+    }
+
+    return responseJson.data.map((item, i) => ({
+      ...item,
+      Date: string_to_iso(item.Date),
+      index: i
+    }));
 })
 
 export const dataSetSlice = createSlice({

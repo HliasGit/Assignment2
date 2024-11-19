@@ -6,7 +6,8 @@ export const selectionSlice = createSlice({
   initialState: {
     dropdown1: "Humidity",
     dropdown2: "Hour",
-    dropdown3: "Rainfall"
+    dropdown3: "RentedBikeCount",
+    dropdown4: "Date"
   },
   reducers: {
     setSelectedValue: (state, action) => {
