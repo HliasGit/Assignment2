@@ -8,6 +8,19 @@ class ScatterplotD3 {
     xScale;
     yScale;
 
+    color1 = d3.rgb(252, 141, 89).clamp();
+    color2 = d3.rgb(44,123,182).clamp();
+
+    color3 = d3.rgb(216, 179, 101).clamp();
+    color4 = d3.rgb(90, 245, 172).clamp();
+
+    color5 = d3.rgb(215,25,28).clamp();
+    color6 = d3.rgb(253,174,97).clamp();
+    color7 = d3.rgb(171,221,164).clamp();
+    color8 = d3.rgb(43,131,186).clamp();
+
+    selectedData = [];
+
     constructor(el) {
         this.el = el;
     }
@@ -55,31 +68,34 @@ class ScatterplotD3 {
         // Initialize Scales
         this.xScale = d3.scaleLinear().range([0, this.width]);
         this.yScale = d3.scaleLinear().range([this.height, 0]);
+
+        this.brush = d3.brush()
+        this.matSvg.append("g").attr("class", "brush").call(this.brush);
     }
 
     addBrush(controllerMethods, xAttribute, yAttribute) {
-        this.matSvg.selectAll(".brush").remove();
 
-        const brush = d3.brush()
-            .extent([[0, 0], [this.width, this.height]])
+        this.brush
+        .extent([[0, 0], [this.width, this.height]])
             .on("end", (event) => {
-                if (!event.selection) return;
-
+                if (!event.selection) {
+                    this.selectedData = [];
+                    return;
+                }
                 const [[x0, y0], [x1, y1]] = event.selection;
-                const selectedData = [];
-
+                this.selectedData = [];
+    
                 this.matSvg.selectAll(".dotG").each((d) => {
                     const cx = this.xScale(d[xAttribute]);
                     const cy = this.yScale(d[yAttribute]);
                     if (x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1) {
-                        selectedData.push(d);
+                        this.selectedData.push(d);
                     }
                 });
-
-                controllerMethods.handleBrushEnd(selectedData);
+    
+                controllerMethods.handleBrushEnd(this.selectedData);
             });
-
-        this.matSvg.append("g").attr("class", "brush").call(brush);
+    this.matSvg.select(".brush").call(this.brush);
     }
 
     updateScales(visData, xAttribute, yAttribute) {
@@ -108,20 +124,20 @@ class ScatterplotD3 {
 
     updateColorSeasons(season) {
         const colorMap = {
-            Spring: "green",
-            Summer: "red",
-            Autumn: "yellow",
-            Winter: "blue",
+            Spring: this.color5,
+            Summer: this.color6,
+            Autumn: this.color7,
+            Winter: this.color8
         };
         return colorMap[season] || null;
     }
 
     updateColorFunc(func) {
-        return func === "Yes" ? "green" : "red";
+        return func === "Yes" ? this.color1 : this.color2;
     }
 
     updateColorHoliday(holiday) {
-        return holiday === "Holiday" ? "green" : "red";
+        return holiday === "Holiday" ? this.color3 : this.color4;
     }
 
     renderScatterplot(visData, xAttribute, yAttribute, catAggreg, controllerMethods, selectedItems) {
@@ -134,9 +150,9 @@ class ScatterplotD3 {
                 d.index,
                 {
                     fillColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
-                    strokeColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
-                    strokeWidth: selectedSet.has(d.index) ? 1.5 : 0.5,
-                    opacity: selectedSet.has(d.index) ? 1 : 0.3,
+                    strokeColor: selectedSet.has(d.index) ? "black" : "none",
+                    strokeWidth: selectedSet.has(d.index) ? 1 : "none",
+                    opacity: selectedSet.has(d.index) ? 1.2 : 0.6,
                 },
             ])
         );

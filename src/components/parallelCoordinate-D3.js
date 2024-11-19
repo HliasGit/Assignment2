@@ -19,31 +19,9 @@ class ParallelCoordinatesD3 {
     color7 = d3.rgb(171,221,164).clamp();
     color8 = d3.rgb(43,131,186).clamp();
 
+
     constructor(el) {
         this.el = el;
-    }
-
-    updateColorSeasons(season) {
-        switch (season){
-            case "Spring":
-                return this.color5;
-            case "Summer":
-                return this.color6;
-            case "Autumn":
-                return this.color7;
-            case "Winter":
-                return this.color8;
-            default:
-                return null;
-        }
-    }
-
-    updateColorFunc(func) {
-        return func === "Yes" ? this.color1 : this.color2;
-    }
-
-    updateColorHoliday(holiday) {
-        return holiday === "Holiday" ? this.color3 : this.color4;
     }
 
     create(config) {
@@ -88,6 +66,52 @@ class ParallelCoordinatesD3 {
             .attr("fill", "black")
             .style("font-size", "14px")
             .style("text-anchor", "middle");
+
+        // Create brushes and append
+        this.leftBrush = d3.brushY()
+            .extent([[-50, 0], [0, this.height]])
+        this.rightBrush = d3.brushY()
+            .extent([[0, 0], [0 + 50, this.height]])
+
+        // Add left brush to the left axis
+        this.svg.append("g")
+            .attr("class", "brush left-brush")
+            .call(this.leftBrush);
+    
+        // Add right brush to the right axis
+        this.svg.append("g")
+            .attr("class", "brush right-brush")
+            .call(this.rightBrush)
+            .attr("transform", `translate(${this.leftWidth}, 0)`);
+    }
+
+    updateColorSeasons(season) {
+        switch (season){
+            case "Spring":
+                return this.color5;
+            case "Summer":
+                return this.color6;
+            case "Autumn":
+                return this.color7;
+            case "Winter":
+                return this.color8;
+            default:
+                return null;
+        }
+    }
+
+    updateColorFunc(func) {
+        return func === "Yes" ? this.color1 : this.color2;
+    }
+
+    updateColorHoliday(holiday) {
+        return holiday === "Holiday" ? this.color3 : this.color4;
+    }
+    
+    updateLines(selection, xAttribute, yAttribute) {
+        selection.transition().duration(500)
+            .attr("y1", d => this.yScale[xAttribute](d[xAttribute]))
+            .attr("y2", d => this.yScale[yAttribute](d[yAttribute]));
     }
 
     updateAxis(visData, xAttribute, yAttribute) {
@@ -137,24 +161,15 @@ class ParallelCoordinatesD3 {
         this.svg.select(".leftAxisLabel").text(xAttribute);
         this.svg.select(".rightAxisLabel").text(yAttribute);
     }
-    
-    updateLines(selection, xAttribute, yAttribute) {
-        selection.transition().duration(500)
-            .attr("y1", d => this.yScale[xAttribute](d[xAttribute]))
-            .attr("y2", d => this.yScale[yAttribute](d[yAttribute]));
-    }
 
     leftBrushSelection = null;
     rightBrushSelection = null;
     
     // Modify addBrushes method
-    addBrushes(controllerMethods, zAttribute, wAttribute) {
-        // Remove any existing brushes
-        this.svg.selectAll(".brush").remove();
+    updateBrushes(controllerMethods, zAttribute, wAttribute) {
     
         // Define left brush
-        const leftBrush = d3.brushY()
-            .extent([[-50, 0], [0, this.height]])
+        this.leftBrush
             .on("end", (event) => {
                 if (!event.selection) return;
                 this.leftBrushSelection = event.selection;
@@ -162,24 +177,12 @@ class ParallelCoordinatesD3 {
             });
     
         // Define right brush
-        const rightBrush = d3.brushY()
-            .extent([[0, 0], [0 + 50, this.height]])
+        this.rightBrush
             .on("end", (event) => {
                 if (!event.selection) return;
                 this.rightBrushSelection = event.selection;
                 this.storeBrushIntersection(controllerMethods, zAttribute, wAttribute);
             });
-    
-        // Add left brush to the left axis
-        this.svg.append("g")
-            .attr("class", "brush left-brush")
-            .call(leftBrush);
-    
-        // Add right brush to the right axis
-        this.svg.append("g")
-            .attr("class", "brush right-brush")
-            .call(rightBrush)
-            .attr("transform", `translate(${this.leftWidth}, 0)`);
     }
     
     // Method to store only data from the intersection of both brushes
@@ -212,15 +215,15 @@ class ParallelCoordinatesD3 {
     renderParallel(data, zAttribute, wAttribute, catAggreg, selectedItems, controllerMethods) {
         this.data = data;  // Store data for brush access
         this.updateAxis(data, zAttribute, wAttribute);
-        this.addBrushes(controllerMethods, zAttribute, wAttribute);
+        this.updateBrushes(controllerMethods, zAttribute, wAttribute);
 
         const selectedSet = new Set(selectedItems.map(item => item.index));
         const lineStyles = data.map(d => ({
             index: d.index,
             fillColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
             strokeColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
-            strokeWidth: selectedSet.has(d.index) ? 1.3 : 0.5,
-            opacity: selectedSet.has(d.index) ? 0.8 : 0.05
+            strokeWidth: selectedSet.has(d.index) ? 1.8 : 0.5,
+            opacity: selectedSet.has(d.index) ? 1.3 : 0.05
         }));
 
         this.svg.selectAll(".data-line").data(data, (d) => d.index).join(
