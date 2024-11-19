@@ -8,6 +8,17 @@ class ParallelCoordinatesD3 {
     svg;
     yScale;
 
+    color1 = d3.rgb(252, 141, 89).clamp();
+    color2 = d3.rgb(44,123,182).clamp();
+
+    color3 = d3.rgb(216, 179, 101).clamp();
+    color4 = d3.rgb(90, 245, 172).clamp();
+
+    color5 = d3.rgb(215,25,28).clamp();
+    color6 = d3.rgb(253,174,97).clamp();
+    color7 = d3.rgb(171,221,164).clamp();
+    color8 = d3.rgb(43,131,186).clamp();
+
     constructor(el) {
         this.el = el;
     }
@@ -15,24 +26,24 @@ class ParallelCoordinatesD3 {
     updateColorSeasons(season) {
         switch (season){
             case "Spring":
-                return "green";
+                return this.color5;
             case "Summer":
-                return "red";
+                return this.color6;
             case "Autumn":
-                return "yellow";
+                return this.color7;
             case "Winter":
-                return "blue";
+                return this.color8;
             default:
                 return null;
         }
     }
 
     updateColorFunc(func) {
-        return func === "Yes" ? "green" : "red";
+        return func === "Yes" ? this.color1 : this.color2;
     }
 
     updateColorHoliday(holiday) {
-        return holiday === "Holiday" ? "green" : "red";
+        return holiday === "Holiday" ? this.color3 : this.color4;
     }
 
     create(config) {
@@ -226,7 +237,7 @@ class ParallelCoordinatesD3 {
                     .style("opacity", d => lineStyles.find(s => s.index === d.index).opacity);
             },
             update => {
-                update.transition().duration(500)
+                update.transition().duration(2000)
                     .attr("y1", d => this.yScale[zAttribute](d[zAttribute]))
                     .attr("y2", d => this.yScale[wAttribute](d[wAttribute]))
                     .style("fill", d => lineStyles.find(s => s.index === d.index).fillColor)
