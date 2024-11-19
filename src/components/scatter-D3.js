@@ -106,7 +106,7 @@ class ScatterplotD3 {
             .attr("transform", (d) => `translate(${this.xScale(d[xAttribute])}, ${this.yScale(d[yAttribute])})`);
     }
 
-    updateColor(season) {
+    updateColorSeasons(season) {
         const colorMap = {
             Spring: "green",
             Summer: "red",
@@ -116,7 +116,15 @@ class ScatterplotD3 {
         return colorMap[season] || null;
     }
 
-    renderScatterplot(visData, xAttribute, yAttribute, controllerMethods, selectedItems) {
+    updateColorFunc(func) {
+        return func === "Yes" ? "green" : "red";
+    }
+
+    updateColorHoliday(holiday) {
+        return holiday === "Holiday" ? "green" : "red";
+    }
+
+    renderScatterplot(visData, xAttribute, yAttribute, catAggreg, controllerMethods, selectedItems) {
         this.updateScales(visData, xAttribute, yAttribute);
         this.addBrush(controllerMethods, xAttribute, yAttribute);
 
@@ -125,10 +133,10 @@ class ScatterplotD3 {
             visData.map((d) => [
                 d.index,
                 {
-                    holiday: d.Holiday === "No Holiday" ? this.updateColor(d.Seasons) : "white",
-                    strokeColor: this.updateColor(d.Seasons),
+                    fillColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
+                    strokeColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
                     strokeWidth: selectedSet.has(d.index) ? 1.5 : 0.5,
-                    opacity: selectedSet.has(d.index) ? 1 : this.defaultOpacity,
+                    opacity: selectedSet.has(d.index) ? 1 : 0.3,
                 },
             ])
         );
@@ -146,7 +154,7 @@ class ScatterplotD3 {
                     itemG.append("circle")
                         .attr("class", "dotCircle")
                         .attr("r", this.circleRadius)
-                        .style("fill", (d) => lineStyles.get(d.index).holiday)
+                        .style("fill", (d) => lineStyles.get(d.index).fillColor)
                         .style("stroke", (d) => lineStyles.get(d.index).strokeColor)
                         .style("stroke-width", (d) => lineStyles.get(d.index).strokeWidth)
                         .style("opacity", (d) => lineStyles.get(d.index).opacity);
@@ -157,7 +165,7 @@ class ScatterplotD3 {
                     this.updateDots(update, xAttribute, yAttribute);
 
                     update.select(".dotCircle")
-                        .style("fill", (d) => lineStyles.get(d.index).holiday)
+                        .style("fill", (d) => lineStyles.get(d.index).fillColor)
                         .style("stroke", (d) => lineStyles.get(d.index).strokeColor)
                         .style("stroke-width", (d) => lineStyles.get(d.index).strokeWidth)
                         .style("opacity", (d) => lineStyles.get(d.index).opacity);

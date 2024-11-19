@@ -18,6 +18,7 @@ function ScatterplotContainer(){
     // Get the attribute you want to show
     const xAttribute= useSelector(state =>state.selection.dropdown1)
     const yAttribute= useSelector(state => state.selection.dropdown2)
+    const catAggregation= useSelector(state => state.selection.dropdown5)
 
     //selector
     const selectedData = useSelector(state => state.selectedItems)
@@ -61,9 +62,9 @@ function ScatterplotContainer(){
             handleBrushEnd
         }
 
-        scatterplotD3Ref.current.renderScatterplot(csvData, xAttribute, yAttribute, controllerMethods, selectedData);
+        scatterplotD3Ref.current.renderScatterplot(csvData, xAttribute, yAttribute, catAggregation, controllerMethods, selectedData);
 
-    },[csvData, dispatch, xAttribute, yAttribute, selectedData]);
+    },[csvData, dispatch, xAttribute, yAttribute, catAggregation, selectedData]);
 
     return(
         <div ref={divContainerRef} className="scatterplotDivContainer col2">

@@ -15,6 +15,7 @@ function ParallelCoordinatesContainer() {
     const csvData = useSelector(state => state.dataSet);
     const zAttribute = useSelector(state => state.selection.dropdown3);
     const wAttribute = useSelector(state => state.selection.dropdown4);
+    const catAttribute = useSelector(state => state.selection.dropdown5);
     const selectedData = useSelector(state => state.selectedItems)
 
     const getContainerSize = () => {
@@ -43,10 +44,10 @@ function ParallelCoordinatesContainer() {
         }
 
         if (divContainerRef.current) {
-            parallelCoordsD3Ref.current.renderParallel(csvData, zAttribute, wAttribute, selectedData, controllerMethods);
+            parallelCoordsD3Ref.current.renderParallel(csvData, zAttribute, wAttribute, catAttribute, selectedData, controllerMethods);
         }
 
-    }, [csvData, zAttribute, wAttribute, selectedData, dispatch]);
+    }, [csvData, zAttribute, wAttribute, catAttribute, selectedData, dispatch]);
 
     return (
         <div ref={divContainerRef} style={{ width: "100%", height: "400px" }}>

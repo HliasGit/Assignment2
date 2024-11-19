@@ -12,7 +12,7 @@ class ParallelCoordinatesD3 {
         this.el = el;
     }
 
-    updateColor(season) {
+    updateColorSeasons(season) {
         switch (season){
             case "Spring":
                 return "green";
@@ -25,6 +25,14 @@ class ParallelCoordinatesD3 {
             default:
                 return null;
         }
+    }
+
+    updateColorFunc(func) {
+        return func === "Yes" ? "green" : "red";
+    }
+
+    updateColorHoliday(holiday) {
+        return holiday === "Holiday" ? "green" : "red";
     }
 
     create(config) {
@@ -53,7 +61,7 @@ class ParallelCoordinatesD3 {
 
         this.leftAxis.append("text")
             .attr("class", "leftAxisLabel")
-            .attr("transform", `rotate(-90) translate(${this.height / -2}, -50)`)  // Adjust -40 as needed
+            .attr("transform", `rotate(-90) translate(${this.height / -2}, -50)`)
             .attr("fill", "black")
             .style("font-size", "14px")
             .style("text-anchor", "middle")
@@ -190,7 +198,7 @@ class ParallelCoordinatesD3 {
         });
     }
 
-    renderParallel(data, zAttribute, wAttribute, selectedItems, controllerMethods) {
+    renderParallel(data, zAttribute, wAttribute, catAggreg, selectedItems, controllerMethods) {
         this.data = data;  // Store data for brush access
         this.updateAxis(data, zAttribute, wAttribute);
         this.addBrushes(controllerMethods, zAttribute, wAttribute);
@@ -198,7 +206,8 @@ class ParallelCoordinatesD3 {
         const selectedSet = new Set(selectedItems.map(item => item.index));
         const lineStyles = data.map(d => ({
             index: d.index,
-            strokeColor: selectedSet.has(d.index) ? this.updateColor(d.Seasons) : this.updateColor(d.Seasons),
+            fillColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
+            strokeColor: catAggreg === "FunctioningDay" ? this.updateColorFunc(d.FunctioningDay) : catAggreg === "Seasons" ? this.updateColorSeasons(d.Seasons) : this.updateColorHoliday(d.Holiday),
             strokeWidth: selectedSet.has(d.index) ? 1.3 : 0.5,
             opacity: selectedSet.has(d.index) ? 0.8 : 0.05
         }));
@@ -211,6 +220,7 @@ class ParallelCoordinatesD3 {
                     .attr("x2", this.leftWidth)
                     .attr("y1", d => this.yScale[zAttribute](d[zAttribute]))
                     .attr("y2", d => this.yScale[wAttribute](d[wAttribute]))
+                    .style("fill", d => lineStyles.find(s => s.index === d.index).fillColor)
                     .style("stroke", d => lineStyles.find(s => s.index === d.index).strokeColor)
                     .style("stroke-width", d => lineStyles.find(s => s.index === d.index).strokeWidth)
                     .style("opacity", d => lineStyles.find(s => s.index === d.index).opacity);
@@ -219,6 +229,7 @@ class ParallelCoordinatesD3 {
                 update.transition().duration(500)
                     .attr("y1", d => this.yScale[zAttribute](d[zAttribute]))
                     .attr("y2", d => this.yScale[wAttribute](d[wAttribute]))
+                    .style("fill", d => lineStyles.find(s => s.index === d.index).fillColor)
                     .style("stroke", d => lineStyles.find(s => s.index === d.index).strokeColor)
                     .style("stroke-width", d => lineStyles.find(s => s.index === d.index).strokeWidth)
                     .style("opacity", d => lineStyles.find(s => s.index === d.index).opacity);
